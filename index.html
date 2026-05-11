@@ -56,6 +56,16 @@
         <path d="M6 17v-8a2 2 0 0 1 4 0v4"/>
         <path d="M14 13a2 2 0 0 1 4 0v2a6 6 0 0 1-6 6h0a6 6 0 0 1-6-6v-2"/>
       </symbol>
+      <!-- Icono chevron -->
+      <symbol id="icon-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="6 9 12 15 18 9"></polyline>
+      </symbol>
+      <!-- Icono imagen/galería -->
+      <symbol id="icon-image" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+        <circle cx="8.5" cy="8.5" r="1.5"></circle>
+        <polyline points="21 15 16 10 5 21"></polyline>
+      </symbol>
     </defs>
   </svg>
 
@@ -76,6 +86,35 @@
   </div>
 
   <!-- ============================
+       Selector de panorámica (esquina superior izquierda)
+       ============================ -->
+  <div id="panorama-selector">
+    <button id="panorama-selector-btn" aria-label="Seleccionar panorámica">
+      <svg><use href="#icon-image"></use></svg>
+      <span id="panorama-selector-label">Calle</span>
+      <svg class="chevron-icon"><use href="#icon-chevron"></use></svg>
+    </button>
+    <div id="panorama-dropdown" class="panorama-dropdown">
+      <button class="panorama-option active" data-index="0">
+        <span class="option-dot"></span>
+        <span>Calle</span>
+      </button>
+      <button class="panorama-option" data-index="1">
+        <span class="option-dot"></span>
+        <span>Concierto de Rock</span>
+      </button>
+      <button class="panorama-option" data-index="2">
+        <span class="option-dot"></span>
+        <span>Vivienda</span>
+      </button>
+      <button class="panorama-option" data-index="3">
+        <span class="option-dot"></span>
+        <span>Estacionamiento</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- ============================
        Brújula
        ============================ -->
   <div id="compass">
@@ -91,24 +130,16 @@
   </button>
 
   <!-- ============================
-       HUD informativo
+       Pie de página informativo
        ============================ -->
-  <div id="hud-overlay">
-    <div class="hud-card">
-      <div class="hud-title">
-        <span class="hud-title__name">Panorámica 360°</span>
-        <span class="hud-title__sub">Vista inmersiva interactiva</span>
+  <div id="info-footer">
+    <div class="info-footer__content">
+      <div class="info-footer__text">
+        <span class="info-footer__title" id="footer-title">Calle</span>
+        <p class="info-footer__desc" id="footer-description">La calle es un espacio urbano lineal, de carácter público, flanqueado por edificaciones o parcelas, que permite la circulación de personas y vehículos, además de dar acceso a los edificios que limitan con ella. Se diferencia de una carretera en que la calle posee una función social y de servicio predominante, integrando infraestructura técnica (redes de agua, electricidad, cloacas) y mobiliario urbano.</p>
       </div>
-      <div class="hud-divider"></div>
-      <div class="hud-controls">
-        <div class="hud-control-item">
-          <svg><use href="#icon-mouse"></use></svg>
-          <span>Clic + Arrastrar</span>
-        </div>
-        <div class="hud-control-item">
-          <svg><use href="#icon-touch"></use></svg>
-          <span>Toque + Deslizar</span>
-        </div>
+      <div class="info-footer__logo">
+        <img src="imagenes/LOGOTIPO ABEJORRO DIGITAL-amarillo.PNG" alt="Abejorro Digital" id="footer-logo">
       </div>
     </div>
   </div>
@@ -124,7 +155,7 @@
   >
     <!-- Sistema de assets para pre-carga optimizada -->
     <a-assets>
-      <img id="sky-image" src="imagen.jpg" crossorigin="anonymous">
+      <img id="sky-image" src="imagenes/calle.jpeg" crossorigin="anonymous">
     </a-assets>
 
     <!-- Cielo 360° con la imagen panorámica -->

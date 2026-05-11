@@ -105,6 +105,34 @@ AFRAME.registerComponent('drag-look', {
 });
 
 /* ============================================================
+   Datos de las panorámicas
+   ============================================================ */
+var panoramas = [
+  {
+    title: 'Calle',
+    image: 'imagenes/calle.jpeg',
+    description: 'La calle es un espacio urbano lineal, de carácter público, flanqueado por edificaciones o parcelas, que permite la circulación de personas y vehículos, además de dar acceso a los edificios que limitan con ella. Se diferencia de una carretera en que la calle posee una función social y de servicio predominante, integrando infraestructura técnica (redes de agua, electricidad, cloacas) y mobiliario urbano.'
+  },
+  {
+    title: 'Concierto de Rock',
+    image: 'imagenes/concierto de rock.jpg',
+    description: 'Los conciertos de rock son eventos de música en vivo caracterizados por su alta energía, interpretación técnica y una atmósfera lúdica de comunión entre la banda y el público. Incluyen elementos como solos de guitarra, interacción vocal y, a menudo, una puesta en escena espectacular, siendo pilares de la cultura juvenil.'
+  },
+  {
+    title: 'Vivienda',
+    image: 'imagenes/vivienda.jpeg',
+    description: 'La vivienda es mucho más que un techo; es el lugar que ofrece refugio, seguridad y el espacio necesario para el desarrollo de la vida familiar y personal. En Venezuela, se considera un derecho social fundamental garantizado por la Constitución.'
+  },
+  {
+    title: 'Estacionamiento',
+    image: 'imagenes/estacionamiento.jpeg',
+    description: 'El estacionamiento se define como el espacio físico, infraestructura o bien inmueble destinado a la detención momentánea o prolongada de vehículos fuera de la vía de circulación activa. Su propósito principal es la transición del usuario del modo de transporte motorizado al modo peatonal, garantizando la seguridad del vehículo y la fluidez del tránsito en las arterias viales.'
+  }
+];
+
+var currentPanorama = 0;
+
+/* ============================================================
    Inicialización del DOM
    ============================================================ */
 document.addEventListener('DOMContentLoaded', function () {
@@ -170,4 +198,111 @@ document.addEventListener('DOMContentLoaded', function () {
       use.setAttribute('href', document.fullscreenElement ? '#icon-compress' : '#icon-expand');
     });
   }
+
+  // --- Selector de panorámica ---
+  var selectorBtn = document.getElementById('panorama-selector-btn');
+  var dropdown = document.getElementById('panorama-dropdown');
+  var selectorLabel = document.getElementById('panorama-selector-label');
+  var options = document.querySelectorAll('.panorama-option');
+  var footerTitle = document.getElementById('footer-title');
+  var footerDesc = document.getElementById('footer-description');
+  var sky = document.querySelector('a-sky');
+  var infoFooter = document.getElementById('info-footer');
+  var isDropdownOpen = false;
+
+  /**
+   * Alternar visibilidad del dropdown
+   */
+  function toggleDropdown() {
+    isDropdownOpen = !isDropdownOpen;
+    dropdown.classList.toggle('open', isDropdownOpen);
+    selectorBtn.classList.toggle('active', isDropdownOpen);
+  }
+
+  /**
+   * Cerrar el dropdown
+   */
+  function closeDropdown() {
+    isDropdownOpen = false;
+    dropdown.classList.remove('open');
+    selectorBtn.classList.remove('active');
+  }
+
+  /**
+   * Cambiar la imagen panorámica activa
+   */
+  function switchPanorama(index) {
+    if (index === currentPanorama) {
+      closeDropdown();
+      return;
+    }
+
+    currentPanorama = index;
+    var pano = panoramas[index];
+
+    // Actualizar clase activa en las opciones
+    options.forEach(function (opt, i) {
+      opt.classList.toggle('active', i === index);
+    });
+
+    // Actualizar el label del selector
+    selectorLabel.textContent = pano.title;
+
+    // Efecto de transición en el footer
+    infoFooter.classList.add('transitioning');
+
+    // Cambiar la imagen del cielo 360° usando THREE.js directamente
+    // (A-Frame cachea los assets, por lo que cambiar el src del <img> no actualiza la vista)
+    var loader = new THREE.TextureLoader();
+    loader.crossOrigin = 'anonymous';
+    loader.load(pano.image, function (texture) {
+      texture.colorSpace = THREE.SRGBColorSpace;
+      var skyMesh = sky.getObject3D('mesh');
+      if (skyMesh) {
+        skyMesh.material.map = texture;
+        skyMesh.material.needsUpdate = true;
+      }
+
+      // Actualizar el pie de página
+      footerTitle.textContent = pano.title;
+      footerDesc.textContent = pano.description;
+
+      // Quitar clase de transición
+      setTimeout(function () {
+        infoFooter.classList.remove('transitioning');
+      }, 100);
+    });
+
+    closeDropdown();
+  }
+
+  // Event listeners del selector
+  if (selectorBtn) {
+    selectorBtn.addEventListener('click', function (e) {
+      e.stopPropagation();
+      toggleDropdown();
+    });
+  }
+
+  options.forEach(function (opt) {
+    opt.addEventListener('click', function (e) {
+      e.stopPropagation();
+      var index = parseInt(this.getAttribute('data-index'), 10);
+      switchPanorama(index);
+    });
+  });
+
+  // Cerrar dropdown al hacer clic fuera
+  document.addEventListener('click', function (e) {
+    if (isDropdownOpen && !e.target.closest('#panorama-selector')) {
+      closeDropdown();
+    }
+  });
+
+  // Cerrar con ESC
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape' && isDropdownOpen) {
+      closeDropdown();
+    }
+  });
 });
