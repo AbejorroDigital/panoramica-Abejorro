@@ -1,0 +1,378 @@
+/* ============================================================
+   Panorámica 360° — Estilos Globales
+   ============================================================ */
+
+/* --- Google Font --- */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+/* --- Variables de diseño --- */
+:root {
+  --color-bg: #0a0a0f;
+  --color-surface: rgba(255, 255, 255, 0.06);
+  --color-surface-hover: rgba(255, 255, 255, 0.12);
+  --color-text: #e8e8ed;
+  --color-text-muted: rgba(255, 255, 255, 0.55);
+  --color-accent: #6c63ff;
+  --color-accent-glow: rgba(108, 99, 255, 0.35);
+  --font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --radius: 16px;
+  --radius-sm: 10px;
+  --transition-fast: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-smooth: 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* --- Reset global --- */
+*,
+*::before,
+*::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  font-family: var(--font-family);
+  background: var(--color-bg);
+  color: var(--color-text);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ============================================================
+   Cursor personalizado — estilo "mano abierta / mano cerrada"
+   ============================================================ */
+.a-canvas {
+  cursor: grab !important;
+}
+
+.a-canvas:active {
+  cursor: grabbing !important;
+}
+
+/* ============================================================
+   Pantalla de carga
+   ============================================================ */
+#loading-screen {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-bg);
+  transition: opacity 0.8s ease, visibility 0.8s ease;
+}
+
+#loading-screen.hidden {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.loader-ring {
+  width: 56px;
+  height: 56px;
+  border: 3px solid rgba(255, 255, 255, 0.08);
+  border-top-color: var(--color-accent);
+  border-radius: 50%;
+  animation: spin 0.9s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.loader-text {
+  margin-top: 20px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+  animation: pulse-text 1.8s ease-in-out infinite;
+}
+
+@keyframes pulse-text {
+  0%, 100% { opacity: 0.5; }
+  50% { opacity: 1; }
+}
+
+/* ============================================================
+   HUD — Panel de información superpuesto (glassmorphism)
+   ============================================================ */
+#hud-overlay {
+  position: fixed;
+  bottom: 28px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 100;
+  pointer-events: none;
+  opacity: 0;
+  animation: fadeSlideUp 0.8s var(--transition-smooth) 1.2s forwards;
+}
+
+@keyframes fadeSlideUp {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+}
+
+.hud-card {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  padding: 14px 28px;
+  background: rgba(15, 15, 25, 0.65);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: var(--radius);
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.4),
+    0 0 0 1px rgba(255, 255, 255, 0.04) inset;
+  pointer-events: auto;
+  transition: var(--transition-fast);
+}
+
+.hud-card:hover {
+  background: rgba(15, 15, 25, 0.8);
+  border-color: rgba(255, 255, 255, 0.14);
+  box-shadow:
+    0 12px 40px rgba(0, 0, 0, 0.5),
+    0 0 0 1px rgba(255, 255, 255, 0.06) inset;
+}
+
+.hud-title {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.hud-title__name {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--color-text);
+  white-space: nowrap;
+}
+
+.hud-title__sub {
+  font-size: 0.72rem;
+  font-weight: 400;
+  color: var(--color-text-muted);
+  letter-spacing: 0.04em;
+}
+
+.hud-divider {
+  width: 1px;
+  height: 32px;
+  background: rgba(255, 255, 255, 0.1);
+  flex-shrink: 0;
+}
+
+.hud-controls {
+  display: flex;
+  gap: 16px;
+}
+
+.hud-control-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.75rem;
+  font-weight: 400;
+  color: var(--color-text-muted);
+  white-space: nowrap;
+}
+
+.hud-control-item svg {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+  opacity: 0.7;
+}
+
+/* ============================================================
+   Botón fullscreen
+   ============================================================ */
+#fullscreen-btn {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 100;
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(15, 15, 25, 0.55);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: var(--radius-sm);
+  color: var(--color-text);
+  cursor: pointer;
+  transition: var(--transition-fast);
+  opacity: 0;
+  animation: fadeIn 0.5s ease 1.5s forwards;
+}
+
+#fullscreen-btn:hover {
+  background: rgba(108, 99, 255, 0.2);
+  border-color: var(--color-accent);
+  box-shadow: 0 0 20px var(--color-accent-glow);
+  transform: scale(1.08);
+}
+
+#fullscreen-btn:active {
+  transform: scale(0.95);
+}
+
+#fullscreen-btn svg {
+  width: 20px;
+  height: 20px;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* ============================================================
+   Indicador de dirección (brújula)
+   ============================================================ */
+#compass {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background: rgba(15, 15, 25, 0.55);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 20px;
+  font-size: 0.72rem;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  color: var(--color-text-muted);
+  opacity: 0;
+  animation: fadeIn 0.5s ease 1.8s forwards;
+  transition: var(--transition-fast);
+}
+
+#compass-arrow {
+  width: 16px;
+  height: 16px;
+  transition: transform 0.15s ease;
+}
+
+#compass-label {
+  min-width: 28px;
+  text-align: center;
+}
+
+/* ============================================================
+   Tooltip de primer uso
+   ============================================================ */
+#first-use-tooltip {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 200;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 32px 44px;
+  background: rgba(15, 15, 25, 0.8);
+  backdrop-filter: blur(28px);
+  -webkit-backdrop-filter: blur(28px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: var(--radius);
+  text-align: center;
+  opacity: 0;
+  animation: fadeIn 0.6s ease 2s forwards;
+  transition: opacity 0.5s ease;
+  pointer-events: none;
+}
+
+#first-use-tooltip.hidden {
+  opacity: 0 !important;
+}
+
+.tooltip-icon {
+  width: 48px;
+  height: 48px;
+  animation: drag-hint 2s ease-in-out infinite;
+}
+
+@keyframes drag-hint {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-12px); }
+  75% { transform: translateX(12px); }
+}
+
+.tooltip-text {
+  font-size: 0.85rem;
+  font-weight: 400;
+  color: var(--color-text-muted);
+  line-height: 1.5;
+}
+
+.tooltip-text strong {
+  color: var(--color-text);
+  font-weight: 600;
+}
+
+/* ============================================================
+   Ocultar los controles VR predeterminados de A-Frame
+   ============================================================ */
+.a-enter-vr {
+  display: none !important;
+}
+
+/* ============================================================
+   Responsive
+   ============================================================ */
+@media (max-width: 640px) {
+  .hud-card {
+    flex-direction: column;
+    gap: 12px;
+    padding: 14px 20px;
+    align-items: flex-start;
+  }
+
+  .hud-divider {
+    width: 100%;
+    height: 1px;
+  }
+
+  .hud-controls {
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  #first-use-tooltip {
+    padding: 24px 28px;
+    width: 85vw;
+  }
+
+  #compass {
+    font-size: 0.65rem;
+    padding: 6px 12px;
+  }
+}

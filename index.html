@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Panorámica 360° — Visor Inmersivo</title>
+  <meta name="description" content="Experiencia inmersiva de imagen panorámica 360° con controles de arrastre interactivo. Haz clic y arrastra para explorar.">
+
+  <!-- A-Frame (CDN oficial v1.7.0) -->
+  <script src="https://aframe.io/releases/1.7.0/aframe.min.js"></script>
+
+  <!-- Estilos -->
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <!-- ============================
+       SVG Sprites (iconos inline)
+       ============================ -->
+  <svg xmlns="http://www.w3.org/2000/svg" style="display:none">
+    <defs>
+      <!-- Icono expandir -->
+      <symbol id="icon-expand" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="15 3 21 3 21 9"></polyline>
+        <polyline points="9 21 3 21 3 15"></polyline>
+        <line x1="21" y1="3" x2="14" y2="10"></line>
+        <line x1="3" y1="21" x2="10" y2="14"></line>
+      </symbol>
+      <!-- Icono comprimir -->
+      <symbol id="icon-compress" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="4 14 10 14 10 20"></polyline>
+        <polyline points="20 10 14 10 14 4"></polyline>
+        <line x1="14" y1="10" x2="21" y2="3"></line>
+        <line x1="3" y1="21" x2="10" y2="14"></line>
+      </symbol>
+      <!-- Icono mano/arrastrar -->
+      <symbol id="icon-hand" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M18 11V6a2 2 0 0 0-4 0v1"/>
+        <path d="M14 10V4a2 2 0 0 0-4 0v2"/>
+        <path d="M10 10.5V6a2 2 0 0 0-4 0v8"/>
+        <path d="M18 8a2 2 0 1 1 4 0v6a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.9-5.7-2.4L3.2 15a1.4 1.4 0 0 1 2.4-1.4L8 17"/>
+      </symbol>
+      <!-- Icono brújula -->
+      <symbol id="icon-compass-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <polygon points="12 2 19 21 12 17 5 21 12 2" fill="currentColor" opacity="0.8"></polygon>
+      </symbol>
+      <!-- Icono ratón -->
+      <symbol id="icon-mouse" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="6" y="3" width="12" height="18" rx="6"></rect>
+        <line x1="12" y1="7" x2="12" y2="11"></line>
+      </symbol>
+      <!-- Icono touch -->
+      <symbol id="icon-touch" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="11" cy="4" r="2"></circle>
+        <path d="M18 13v-2a4 4 0 0 0-8 0v2"></path>
+        <path d="M6 17v-8a2 2 0 0 1 4 0v4"/>
+        <path d="M14 13a2 2 0 0 1 4 0v2a6 6 0 0 1-6 6h0a6 6 0 0 1-6-6v-2"/>
+      </symbol>
+    </defs>
+  </svg>
+
+  <!-- ============================
+       Pantalla de carga
+       ============================ -->
+  <div id="loading-screen">
+    <div class="loader-ring"></div>
+    <p class="loader-text">Cargando panorámica…</p>
+  </div>
+
+  <!-- ============================
+       Tooltip de primer uso
+       ============================ -->
+  <div id="first-use-tooltip">
+    <svg class="tooltip-icon"><use href="#icon-hand"></use></svg>
+    <p class="tooltip-text"><strong>Haz clic y arrastra</strong> para explorar<br>la vista panorámica 360°</p>
+  </div>
+
+  <!-- ============================
+       Brújula
+       ============================ -->
+  <div id="compass">
+    <svg id="compass-arrow"><use href="#icon-compass-arrow"></use></svg>
+    <span id="compass-label">N</span>
+  </div>
+
+  <!-- ============================
+       Botón fullscreen
+       ============================ -->
+  <button id="fullscreen-btn" aria-label="Pantalla completa">
+    <svg><use href="#icon-expand"></use></svg>
+  </button>
+
+  <!-- ============================
+       HUD informativo
+       ============================ -->
+  <div id="hud-overlay">
+    <div class="hud-card">
+      <div class="hud-title">
+        <span class="hud-title__name">Panorámica 360°</span>
+        <span class="hud-title__sub">Vista inmersiva interactiva</span>
+      </div>
+      <div class="hud-divider"></div>
+      <div class="hud-controls">
+        <div class="hud-control-item">
+          <svg><use href="#icon-mouse"></use></svg>
+          <span>Clic + Arrastrar</span>
+        </div>
+        <div class="hud-control-item">
+          <svg><use href="#icon-touch"></use></svg>
+          <span>Toque + Deslizar</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================
+       Escena A-Frame
+       ============================ -->
+  <a-scene
+    embedded
+    loading-screen="enabled: false"
+    renderer="antialias: true; colorManagement: true"
+    vr-mode-ui="enabled: false"
+  >
+    <!-- Sistema de assets para pre-carga optimizada -->
+    <a-assets>
+      <img id="sky-image" src="imagen.jpg" crossorigin="anonymous">
+    </a-assets>
+
+    <!-- Cielo 360° con la imagen panorámica -->
+    <a-sky src="#sky-image" rotation="0 -130 0"></a-sky>
+
+    <!-- Cámara personalizada con drag-look (sin look-controls por defecto) -->
+    <a-entity
+      id="panoramic-camera"
+      camera
+      drag-look="sensitivity: 0.25; inertia: 0.9; maxPitch: 65"
+      look-controls="enabled: false"
+      wasd-controls="enabled: false"
+      position="0 1.6 0"
+    ></a-entity>
+  </a-scene>
+
+  <!-- Lógica JS (después de A-Frame para que el componente se registre correctamente) -->
+  <script src="script.js"></script>
+
+</body>
+</html>
